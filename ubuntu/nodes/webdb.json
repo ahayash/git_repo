@@ -1,8 +1,11 @@
 {
+  "apache": {
+    "listen_ports: [8080],"
+    "keepalive": "Off",
+    "docroot_dir": "/home/vagrant/htdocs"
+  },
   "run_list": [
-    "recipe[dstat]",
-    "recipe[apache]",
-    "recipe[mysql]"
+    "recipe[apache2]"
   ],
   "automatic": {
     "ipaddress": "webdb"

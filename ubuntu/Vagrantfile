@@ -1,18 +1,37 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  config.vm.box = "centos64-x86_64-20140116"
+  config.vm.box_url = "http://github.com/2creatives/vagrant-centos/releases/download/v6.4.2/centos64-x86_64-20140116.box"
+
+  #config.vm.box = "ubuntu-precise-32"
+  #config.vm.box_url = "http://files.vagrantup.com/precise32.box"
+
+  config.omnibus.chef_version = :latest
+
+
 # All Vagrant configuration is done below. The "2" in Vagrant.configure
 # configures the configuration version (we support older styles for
 # backwards compatibility). Please don't change it unless you know what
 # you're doing.
-Vagrant.configure(2) do |config|
+#Vagrant.configure(2) do |config|
   # The most common configuration options are documented and commented below.
   # For a complete reference, please see the online documentation at
   # https://docs.vagrantup.com.
 
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://atlas.hashicorp.com/search.
-  config.vm.box = "ubuntu-precise-32"
+
+=begin
+  config.vm.define :node01 do |node01|
+    node01.vm.box = "centos64-x86_64-20140116"
+  end
+
+  config.vm.define :node02
+=end
 
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
@@ -68,4 +87,25 @@ Vagrant.configure(2) do |config|
   #   sudo apt-get update
   #   sudo apt-get install -y apache2
   # SHELL
+
+config.vm.provision :chef_solo do |chef|
+  chef.cookbooks_path = "./cookbooks"
+  chef.json = {
+    nginx: {
+      env: "ruby"
+    },
+    fluentd: {
+      installer: "rpm"
+    },
+    mysql: {
+      server_root_password: 'password'
+    }
+  }
+  chef.run_list = %w[
+    recipe[yum-epel]
+    recipe[nginx]
+    recipe[mysql]
+    recipe[fluentd]
+  ]
+  end
 end
