@@ -1,15 +1,12 @@
 user  nginx;
 worker_processes  1;
 
-
 error_log  /var/log/nginx/error.log warn;
 pid        /var/run/nginx.pid;
-
 
 events {
    worker_connections  1024;
 }
-
 
 http {
     include       /etc/nginx/mime.types;
@@ -21,6 +18,11 @@ http {
     sendfile        on;
     keepalive_timeout  65;
 
+    <% if node['nginx']['env'].include?("ruby") %>
+    upstream unicorn {
+        server unix:/tmp/unicorn.sock;
+    }
+    <%end%>
 
     server {
         listen      80 default_server;
@@ -50,5 +52,12 @@ http {
             include        fastcgi_params;
         }
         <% end %>
+
+        <% if node['nginx']['env'].include?("ruby") %>
+        location /unicorn {
+            rewrite ^/unicorn/(.+) /$1 break;
+            proxy_pass http://unicorn/$1;
+        }
+        <%end%>
     }
 }
