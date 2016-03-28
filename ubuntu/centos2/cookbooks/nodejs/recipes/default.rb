@@ -12,7 +12,7 @@
   end
 end
 
-remote_file "/tmp/#{node['nodejs']['filename']}"
+remote_file "/tmp/#{node['nodejs']['filename']}" do
   source "#{node['nodejs']['remote_uri']}"
 end
 
